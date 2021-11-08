@@ -5,7 +5,7 @@
 // @grant       GM_download
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@1,npm/@violentmonkey/ui@0.5
-// @version     1.0
+// @version     1.1
 // @author      Jascha Kanngießer
 // @description Places a button "Alle herunterladen" next to "Alle archivieren" and downloads all documents visible on the page.
 // @icon        https://www.ing.de/frontendassets/ing-cms-ui/v67.1.0/assets/favicons/favicon-32x32.png
