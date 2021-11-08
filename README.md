@@ -14,9 +14,15 @@ Install Violentmonkey from [github.io](https://violentmonkey.github.io/).
 
 ## Scripts
 
-To install a script, navigate to the raw version by clicking on *Raw*.
+To install a script, navigate to the raw version by clicking on *Raw*. The Violentmonkey plugin in your browser should open automatically. 
 
 ![images/install](images/install.png)
+
+In case it does not open, open the plugin yourself and add a new script via the + button.
+
+![images/plus](images/plus.png)
+
+Select *Install from URL* and paste the link to the raw file or select *New* and copy and paste the script code and hit *Save & Close*.
 
 After successful installation reload the page in question.
 
