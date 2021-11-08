@@ -5,7 +5,7 @@ A collection of various [Violentmonkey](https://violentmonkey.github.io/) script
 
 - [Userscript Manager](#userscript-manager)
 - [Scripts](#scripts)
-  - [Download documents from postbox - ing.de](#download-documents-from-postbox-ing-de)
+  - [Download documents from postbox - ing.de](#download-documents-from-postbox---ingde)
 
 
 ## Userscript Manager
