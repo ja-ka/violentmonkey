@@ -10,7 +10,7 @@
 // @description Places a button "Alle herunterladen" next to "Alle archivieren" and downloads all documents visible on the page.
 // @icon        https://www.ing.de/frontendassets/ing-cms-ui/v67.1.0/assets/favicons/favicon-32x32.png
 // @run-at      document-end
-// @downloadURL https://github.com/ja-ka/violentmonkey/ing-postbox-download-all.js
+// @downloadURL https://raw.githubusercontent.com/ja-ka/violentmonkey/master/ing-postbox-download-all.js
 // @supportURL  https://github.com/ja-ka/violentmonkey
 // @homepageURL https://github.com/ja-ka/violentmonkey
 // ==/UserScript==
