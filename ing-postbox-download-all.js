@@ -2,7 +2,11 @@
 // @name        Download documents from postbox - ing.de
 // @namespace   https://github.com/ja-ka/violentmonkey
 // @match       https://banking.ing.de/app/postbox
+// @match       https://banking.ing.de/app/postbox_archiv
 // @grant       GM_download
+// @grant       GM_getValue
+// @grant       GM_setValue
+// @grant       GM_addValueChangeListener
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@1,npm/@violentmonkey/ui@0.5
 // @version     1.1
@@ -15,22 +19,27 @@
 // @homepageURL https://github.com/ja-ka/violentmonkey
 // ==/UserScript==
 
-const NAME = "Alle herunterladen";
-
-const download = async (url, name) => new Promise((res, rej) => {
-  GM_download({ url, name, onprogress: (progress) => {
-    if (progress.status === 200) {
-      res();
-    }
-  }, onerror: rej, onabort: rej, ontimeout: rej });
-});
-
-let abort = false;
-let loading = false;
-
 (function () {
-    $(document).ready(function () {
-      $('.content-header__button-wrapper--lg').after(VM.createElement("button", {
+  $(document).ready(function () {
+    const NAME = "Alle herunterladen";    
+
+    const download = async (url, name) => new Promise((res, rej) => {
+      GM_download({ url, name, onprogress: (progress) => {
+        if (progress.status === 200) {
+          setTimeout(() => {
+            res();
+          }, 200);
+        }
+      }, onerror: rej , onabort: rej, ontimeout: rej });
+    });
+
+    let abort = false;
+    let loading = false;
+    const FILENAME_TEMPLATE_KEY = "FILENAME_TEMPLATE";
+    let filenameTemplate = GM_getValue(FILENAME_TEMPLATE_KEY, "DD.MM.YYYY_ART_BETREFF");
+    
+    const addButton = (name, onClick) => {
+      $('.account-filters').after(VM.createElement("button", {
         className: "content-header__button gap-left-1",
         style: {
           borderRadius: "6px",
@@ -38,57 +47,88 @@ let loading = false;
           fontSize: ".875rem",
           lineHeight: "20px",
           padding: "7px 14px 6px",
+          margin: "0px",
+          marginBottom: "25px",
+          marginRight: "10px"
         },
-        onClick: async function() {
-          if (loading) {
-            abort = true;
-            return;
-          }
-          
-          loading = true;
-          
-          try {
-            let downloaded = 0;
-            const rows = $('div.ibbr-table-row');
-            
-            const setProgress = () => {
-              downloaded += 1;
-              this.innerHTML = `${downloaded} / ${rows.length} verarbeitet (erneut klicken um abzubrechen)`;
-            };
+        onClick
+      }, name));  
+    }
+    
+    addButton("Dateinamen ändern", async function() {
+      const newFilenameTemplate = prompt("Bitte gib ein Dateiname-Template ein:", filenameTemplate);
+      
+      if (newFilenameTemplate === null) {
+        return;
+      }
+      
+      if (!['DD', 'MM', 'YYYY', 'ART', 'BETREFF'].every((curr) => {
+        return newFilenameTemplate.includes(curr);
+      })) {
+        alert('Bitte gib ein Template nach folgendem Muster ein: DD.MM.YYYY_ART_BETREFF');
+        return;
+      }
+      
+      GM_setValue(FILENAME_TEMPLATE_KEY, newFilenameTemplate);
+      filenameTemplate = newFilenameTemplate;
+    });     
+    
+    addButton(NAME, async function() {
+      if (loading) {
+        abort = true;
+        return;
+      }
 
-            const downloads = 
-              rows
-                .map(function () {
-                  const name = $(this).find('> span.ibbr-table-cell > span')
-                    .map(function () {
-                      return $(this).text().trim().replace(/[^A-Za-z0-9]/g, '_').replace('/\n/g', '');
-                    })
-                    .get()
-                    .join('_') + ".pdf";
+      loading = true;
 
-                  const url = "https://banking.ing.de/app" + $(this).find('a:contains(Download)').first().attr('href').substring(1);
-                  return { url, name };
+      try {
+        let downloaded = 0;
+        const rows = $('div.ibbr-table-row');
+
+        const setProgress = () => {
+          downloaded += 1;
+          this.innerHTML = `${downloaded} / ${rows.length} verarbeitet (erneut klicken um abzubrechen)`;
+        };
+
+        const downloads = 
+          rows
+            .map(function() {
+              const nameSegments = $(this).find('> span.ibbr-table-cell > span')
+                .filter(function() {
+                  return $(this).text().trim() !== "|";
+                })
+                .map(function() {
+                  return $(this).text().trim().replace(/[^A-Za-z0-9]/g, '_').replace('/\n/g', '');
                 })
                 .get();
-            
-            for (const d of downloads) {
-              if (abort) {
-                break;  
-              }
-              
-              await download(d.url, d.name);
-              setProgress();
-            }
-          } catch (err) {
-            console.log(err.stack);
-            alert("Es ist ein Fehler aufgetreten.");
+
+              const name = `${filenameTemplate
+                .replace('DD', nameSegments[0].split('_')[0])
+                .replace('MM', nameSegments[0].split('_')[1])
+                .replace('YYYY', nameSegments[0].split('_')[2])
+                .replace('ART', nameSegments[1])
+                .replace('BETREFF', nameSegments[2])}.pdf`;
+
+              const url = "https://banking.ing.de/app" + $(this).find('a:contains(Download)').first().attr('href').substring(1);
+              return { url, name };
+            })
+            .get();
+
+        for (const d of downloads) {
+          if (abort) {
+            break;  
           }
-          
-          abort = false;
-          loading = false;
-          this.innerHTML = NAME;
+
+          setProgress();
+          await download(d.url, d.name);
         }
-      }, NAME));
-    })
-  })();
-  
+      } catch (err) {
+        alert("Es ist ein Fehler aufgetreten.", err);
+      }
+
+      abort = false;
+      loading = false;
+      this.innerHTML = NAME;
+    });    
+  })
+})();
