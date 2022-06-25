@@ -12,7 +12,7 @@
 // @version     1.1
 // @author      Jascha Kanngießer
 // @description Places a button "Alle herunterladen" next to "Alle archivieren" and downloads all documents visible on the page.
-// @icon        https://www.ing.de/frontendassets/ing-cms-ui/v67.1.0/assets/favicons/favicon-32x32.png
+// @icon        https://www.ing.de/favicon-32x32.png
 // @run-at      document-end
 // @downloadURL https://raw.githubusercontent.com/ja-ka/violentmonkey/master/ing-postbox-download-all.js
 // @supportURL  https://github.com/ja-ka/violentmonkey
