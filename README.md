@@ -28,7 +28,7 @@ After successful installation reload the page in question.
 
 ### Download documents from postbox - ing.de
 
-![images/ing-postbox-download-all](images/ing-postbox-download-all.png)
+![images/ing-postbox-download-all](images/ing-postbox-download-all2.png)
 
 #### What it does
 
