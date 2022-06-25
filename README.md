@@ -32,7 +32,7 @@ After successful installation reload the page in question.
 
 #### What it does
 
-The script installs a button *Alle herunterladen* next to *Alle archivieren* and *Gelesene archivieren*. When hitting the button, the script downloads all documents currently visible on the page based on the configured filter.
+The script installs a button *Alle herunterladen* next to *Alle archivieren* and *Gelesene archivieren*. When hitting the button, the script downloads all documents currently visible on the page based on the configured filter. You can adjust the file name of the downloaded files by clicking on *Dateinamen ändern* and providing a file name template including the terms DD, MM, YYYY, ART, BETREFF, for example YYYY-MM-DD_ART_BETREFF.
 
 #### Metadata
 
