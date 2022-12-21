@@ -8,7 +8,7 @@
 // @grant       GM_setValue
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@1,npm/@violentmonkey/ui@0.5
-// @version     1.3
+// @version     1.4
 // @author      Jascha Kanngießer
 // @description Places a button "Alle herunterladen" next to "Alle archivieren" and downloads all documents visible on the page.
 // @icon        https://www.ing.de/favicon-32x32.png
@@ -108,7 +108,7 @@
                 .replace('ART', nameSegments[1])
                 .replace('BETREFF', nameSegments[2])}.pdf`;
 
-              const url = "https://banking.ing.de/app" + $(this).find('a:contains(Download)').first().attr('href').substring(1);
+              const url = "https://banking.ing.de/app/postbox" + $(this).find('a:contains(Download)').first().attr('href').substring(1);
               return { url, name };
             })
             .get();
