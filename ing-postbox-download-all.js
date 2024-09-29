@@ -8,7 +8,7 @@
 // @grant       GM_setValue
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@1,npm/@violentmonkey/ui@0.5
-// @version     1.4
+// @version     1.5
 // @author      Jascha Kanngießer
 // @description Places a button "Alle herunterladen" next to "Alle archivieren" and downloads all documents visible on the page.
 // @icon        https://www.ing.de/favicon-32x32.png
@@ -54,7 +54,8 @@
       }, name));  
     }
     
-    addButton("Dateinamen ändern", async function() {
+    addButton("Dateinamen ändern", async function(event) {
+      event.preventDefault()
       const newFilenameTemplate = prompt("Bitte gib ein Dateiname-Template ein:", filenameTemplate);
       
       if (newFilenameTemplate === null) {
@@ -72,7 +73,8 @@
       filenameTemplate = newFilenameTemplate;
     });     
     
-    addButton(NAME, async function() {
+    addButton(NAME, async function(event) {
+      event.preventDefault()
       if (loading) {
         abort = true;
         return;
@@ -82,7 +84,7 @@
 
       try {
         let downloaded = 0;
-        const rows = $('div.ibbr-table-row');
+        const rows = $('.ibbr-table-body div.ibbr-table-row');
 
         const setProgress = () => {
           downloaded += 1;
@@ -92,21 +94,18 @@
         const downloads = 
           rows
             .map(function() {
-              const nameSegments = $(this).find('> span.ibbr-table-cell > span')
-                .filter(function() {
-                  return $(this).text().trim() !== "|";
-                })
+              const nameSegments = $(this).find('> span.ibbr-table-cell:not(:last)')
                 .map(function() {
                   return $(this).text().trim().replace(/[^A-Za-z0-9]/g, '_').replace('/\n/g', '');
                 })
                 .get();
 
               const name = `${filenameTemplate
-                .replace('DD', nameSegments[0].split('_')[0])
-                .replace('MM', nameSegments[0].split('_')[1])
-                .replace('YYYY', nameSegments[0].split('_')[2])
-                .replace('ART', nameSegments[1])
-                .replace('BETREFF', nameSegments[2])}.pdf`;
+                .replace('DD', nameSegments[2].split('_')[0])
+                .replace('MM', nameSegments[2].split('_')[1])
+                .replace('YYYY', nameSegments[2].split('_')[2])
+                .replace('ART', nameSegments[0])
+                .replace('BETREFF', nameSegments[1])}.pdf`;
 
               const url = "https://banking.ing.de/app/postbox" + $(this).find('a:contains(Download)').first().attr('href').substring(1);
               return { url, name };
