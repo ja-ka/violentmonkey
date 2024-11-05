@@ -96,7 +96,7 @@
             .map(function() {
               const nameSegments = $(this).find('> span.ibbr-table-cell:not(:last)')
                 .map(function() {
-                  return $(this).text().trim().replace(/[^A-Za-z0-9]/g, '_').replace('/\n/g', '');
+                  return $(this).text().trim().replace(/[^A-Za-z0-9ÄÖÜäöüß]/g, '_').replace('/\n/g', '');
                 })
                 .get();
 
