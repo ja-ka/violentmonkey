@@ -8,7 +8,7 @@
 // @grant       GM_setValue
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@1,npm/@violentmonkey/ui@0.5
-// @version     1.6
+// @version     1.7
 // @author      Jascha Kanngießer
 // @description Places a button "Alle herunterladen" next to "Alle archivieren" and downloads all documents visible on the page.
 // @icon        https://www.ing.de/favicon-32x32.png
@@ -35,7 +35,9 @@
     let abort = false;
     let loading = false;
     const FILENAME_TEMPLATE_KEY = "FILENAME_TEMPLATE";
+    const USE_ORIGINAL_FILENAME_KEY = "USE_ORIGINAL_FILENAME";
     let filenameTemplate = GM_getValue(FILENAME_TEMPLATE_KEY, "DD.MM.YYYY_ART_BETREFF");
+    let useOriginalFilename = GM_getValue(USE_ORIGINAL_FILENAME_KEY, false);
     
     const addButton = (name, onClick) => {
       $('.account-filters').after(VM.createElement("button", {
@@ -53,6 +55,48 @@
         onClick
       }, name));  
     }
+    
+    const addCheckbox = (label, checked, onChange) => {
+      const container = VM.createElement("div", {
+        style: {
+          marginBottom: "15px",
+          marginRight: "10px",
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "8px"
+        }
+      });
+      
+      const checkbox = VM.createElement("input", {
+        type: "checkbox",
+        checked: checked,
+        style: {
+          cursor: "pointer"
+        },
+        onChange: (e) => onChange(e.target.checked)
+      });
+      
+      const labelElement = VM.createElement("label", {
+        style: {
+          cursor: "pointer",
+          fontSize: "14px",
+          userSelect: "none"
+        },
+        onClick: () => {
+          checkbox.checked = !checkbox.checked;
+          onChange(checkbox.checked);
+        }
+      }, label);
+      
+      container.appendChild(checkbox);
+      container.appendChild(labelElement);
+      $('.account-filters').after(container);
+    }
+    
+    addCheckbox("Original-Dateinamen verwenden", useOriginalFilename, (checked) => {
+      useOriginalFilename = checked;
+      GM_setValue(USE_ORIGINAL_FILENAME_KEY, checked);
+    });
     
     addButton("Dateinamen ändern", async function(event) {
       event.preventDefault()
@@ -100,14 +144,23 @@
                 })
                 .get();
 
-              const name = `${filenameTemplate
-                .replace('DD', nameSegments[2].split('_')[0])
-                .replace('MM', nameSegments[2].split('_')[1])
-                .replace('YYYY', nameSegments[2].split('_')[2])
-                .replace('ART', nameSegments[0])
-                .replace('BETREFF', nameSegments[1])}.pdf`;
-
               const url = "https://banking.ing.de/app/postbox" + $(this).find('a:contains(Download)').first().attr('href').substring(1);
+              
+              let name;
+              if (useOriginalFilename) {
+                // Extract original filename from URL
+                const urlParts = url.split('/');
+                const originalFilename = decodeURIComponent(urlParts[urlParts.length - 1]);
+                name = originalFilename;
+              } else {
+                name = `${filenameTemplate
+                  .replace('DD', nameSegments[2].split('_')[0])
+                  .replace('MM', nameSegments[2].split('_')[1])
+                  .replace('YYYY', nameSegments[2].split('_')[2])
+                  .replace('ART', nameSegments[0])
+                  .replace('BETREFF', nameSegments[1])}.pdf`;
+              }
+
               return { url, name };
             })
             .get();
