@@ -3,12 +3,11 @@
 // @namespace   https://github.com/ja-ka/violentmonkey
 // @match       https://banking.ing.de/app/postbox/postbox*
 // @match       https://banking.ing.de/app/postbox/postbox_archiv*
-// @grant       GM_download
 // @grant       GM_getValue
 // @grant       GM_setValue
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require     https://cdn.jsdelivr.net/combine/npm/@violentmonkey/dom@1,npm/@violentmonkey/ui@0.5
-// @version     1.7
+// @version     1.8
 // @author      Jascha Kanngießer
 // @description Places a button "Alle herunterladen" next to "Alle archivieren" and downloads all documents visible on the page.
 // @icon        https://www.ing.de/favicon-32x32.png
@@ -22,15 +21,20 @@
   $(document).ready(function () {
     const NAME = "Alle herunterladen";    
 
-    const download = async (url, name) => new Promise((res, rej) => {
-      GM_download({ url, name, onprogress: (progress) => {
-        if (progress.status === 200) {
-          setTimeout(() => {
-            res();
-          }, 200);
-        }
-      }, onerror: rej , onabort: rej, ontimeout: rej });
-    });
+    const download = async (url, name) => {
+      const res = await fetch(url, { credentials: "include" });
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(blobUrl);
+      await new Promise((r) => setTimeout(r, 200));
+    };
 
     let abort = false;
     let loading = false;
